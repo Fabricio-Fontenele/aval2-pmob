@@ -17,8 +17,10 @@
   integrantes distintos. Ainda é necessário reunir os nomes completos e as contas
   do GitHub.
 - Situação atual: existem os requisitos e as instruções para agentes; ainda não há
-  aplicação Flutter, manifesto de dependências, serviço de nuvem configurado ou
-  histórico Git utilizável.
+  aplicação Flutter, manifesto de dependências ou serviço de nuvem configurado.
+  O Git foi inicializado, e a documentação está publicada no repositório público
+  [Fabricio-Fontenele/aval2-pmob](https://github.com/Fabricio-Fontenele/aval2-pmob),
+  com a branch principal `main`.
 - As datas são marcos propostos, sem pressupor a disponibilidade individual.
   Confirmar a disponibilidade na reunião inicial e redistribuir tarefas quando
   necessário, preservando o tempo reservado à integração e à verificação final.
@@ -219,7 +221,7 @@ o planejamento dos testes pode começar antes.
 
 | ID | Prazo proposto | Responsável | Depende de | Entrega e evidência de conclusão |
 | --- | --- | --- | --- | --- |
-| P01 | 27/10 | Fabricio | Nenhuma | Estrutura mínima do Flutter, base visual Material 3, testes iniciais e regras para ignorar arquivos que não devem ser versionados; aplicativo inicia na plataforma combinada. A equipe estabelece o repositório GitHub separadamente. |
+| P01 | 27/10 | Fabricio | Nenhuma | Estrutura mínima do Flutter, base visual Material 3, testes iniciais e regras para ignorar arquivos que não devem ser versionados; aplicativo inicia na plataforma combinada. O repositório GitHub e a configuração inicial do Git já estão disponíveis; a estrutura Flutter permanece pendente. |
 | P02 | 28/10 | Fabricio e Willamy; todos revisam | P01 | Entidades, validações de objetos e acesso, contratos de persistência e autenticação e falhas combinadas; testes dos limites passam e os demais módulos conseguem utilizar os contratos. |
 | P03 | 28/10 | Francisco | Definição dos contratos em P02 | Comprovação do serviço gratuito com dados e autenticação; leitura pública, cadastro de conta, entrada e inserção autenticada funcionam; política de confirmação e instruções iniciais registradas. |
 | P04 | 30/10 | Francisco | P02, P03 | Adaptador de autenticação, esquema com autoria e regras de acesso; testes de tradução de falhas passam; requisições sem sessão e autoria forjada são negadas. |
@@ -326,7 +328,6 @@ já concluído:
 
 - Nome completo, conta do GitHub e disponibilidade de cada integrante para as
   datas propostas.
-- Responsável pelo repositório e pessoa autorizada a criá-lo e torná-lo público.
 - Dispositivo ou emulador Android disponível e pré-requisitos do SDK em cada
   estação de trabalho.
 - Provedor gratuito de nuvem após a verificação de viabilidade de Francisco;

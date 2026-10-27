@@ -4,6 +4,8 @@ Academic project for the second assessment of the Mobile Programming course at
 Universidade Estadual do Piauí (UESPI). The planned application uses Flutter and
 Dart to publish and browse lost and found objects in the university community.
 
+Public repository: [Fabricio-Fontenele/aval2-pmob](https://github.com/Fabricio-Fontenele/aval2-pmob).
+
 ## Project status
 
 The repository currently contains the assignment, development plan, agent
