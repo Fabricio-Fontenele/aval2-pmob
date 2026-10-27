@@ -1,0 +1,80 @@
+# Local agent and cloud configuration
+/.agents/
+/.aws/
+/.codex/
+
+# Private environment configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.p12
+*.jks
+*.keystore
+key.properties
+*-service-account.json
+service-account*.json
+
+# Dart and Flutter generated files
+.dart_tool/
+.pub/
+.pub-cache/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+coverage/
+doc/api/
+**/flutter/ephemeral/
+**/Flutter/ephemeral/
+
+# Android local configuration and generated files
+android/.gradle/
+android/captures/
+android/local.properties
+android/key.properties
+android/app/debug/
+android/app/profile/
+android/app/release/
+
+# Apple dependencies and generated files
+**/Pods/
+**/.symlinks/
+**/Flutter/.last_build_id
+**/Flutter/Generated.xcconfig
+**/Flutter/flutter_export_environment.sh
+**/Flutter/Flutter.framework/
+**/Flutter/Flutter.podspec
+**/Flutter/App.framework/
+**/Flutter/app.flx
+**/Flutter/app.zip
+**/Flutter/flutter_assets/
+**/Runner/GeneratedPluginRegistrant.*
+**/xcuserdata/
+**/*.xcuserstate
+
+# Compiled application artifacts
+*.apk
+*.aab
+*.ipa
+*.app/
+*.dSYM/
+*.exe
+*.dll
+*.so
+*.dylib
+*.class
+*.o
+*.a
+
+# Editors, operating systems, and logs
+.idea/
+*.iml
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+*.log
+
+# Keep pubspec.lock tracked for reproducible application dependencies.
