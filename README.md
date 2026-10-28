@@ -10,8 +10,9 @@ Public repository: [Fabricio-Fontenele/aval2-pmob](https://github.com/Fabricio-F
 
 The repository currently contains the assignment, development plan, agent
 instructions, and repository configuration. The Flutter application has not been
-scaffolded, and no cloud service has been provisioned. Build, execution, and cloud
-setup instructions will be added with their implementations.
+scaffolded, the custom API has not been implemented, and no cloud service has been
+provisioned. Build, execution, and cloud setup instructions will be added with
+their implementations.
 
 ## Planned features
 
@@ -27,10 +28,10 @@ setup instructions will be added with their implementations.
 
 | Member | Main responsibility |
 | --- | --- |
-| Fabricio | Application foundation, authentication UI, session state, and integration |
-| Francisco | Cloud storage, authentication adapters, and remote access rules |
-| Ruan | Object listing, navigation, and README consolidation |
-| Willamy | Object registration, validation, and acceptance checks |
+| Fabricio | Application foundation, custom authentication API, session management, and integration |
+| Francisco | PostgreSQL, object endpoints and adapters, deployment, and database permissions |
+| Ruan | Object listing, sign-in screen, navigation, and README consolidation |
+| Willamy | Object and account registration screens, validation, and acceptance checks |
 
 Replace the short names with every member's full name before academic submission.
 Each member must contribute identifiable commits and understand the complete flow.
@@ -46,14 +47,23 @@ Each member must contribute identifiable commits and understand the complete flo
 
 Use Flutter/Dart, Material 3, `ChangeNotifier`, constructor injection, and
 `flutter_test`. Organize object and authentication features into presentation,
-domain, and data responsibilities. Supabase Free is proposed for data and
-authentication, subject to the feasibility check described in the plan.
+domain, and data responsibilities. Authentication will use a separate
+team-owned Dart HTTP API, with server-side password hashing and revocable opaque
+sessions. The Flutter app accesses this API for authentication and object data;
+it does not connect directly to credential tables or use Supabase Auth.
+
+Render Free is proposed for hosting the API and Supabase Free only for PostgreSQL,
+subject to the feasibility check described in the plan. Keep database integration
+behind SQL contracts so the database host can be replaced independently of
+authentication. Use maintained cryptographic libraries rather than implementing
+password hashing or token-generation algorithms.
 
 Production data must use real remote persistence. Unit and widget tests isolate
 external services. Use demonstration objects and accounts without personal data.
 Keep private credentials, authentication tokens, and generated build artifacts
-out of version control. Public client configuration and reproducible cloud setup
-must be documented when the integration is implemented.
+out of version control. The Flutter app receives only the public `API_BASE_URL`;
+database credentials stay in the API's environment. Reproducible API and database
+setup must be documented when the integration is implemented.
 
 ## Development checks
 
@@ -69,6 +79,9 @@ flutter test
 Build and run the configured mobile target with the documented cloud parameters
 before delivery. These commands have not been run against an application yet;
 there is no `pubspec.yaml` in the current project.
+
+Once the separate Dart API package exists under `api/`, run `dart pub get`,
+`dart analyze`, and `dart test` from that directory and verify HTTPS deployment.
 
 ## Academic delivery
 
