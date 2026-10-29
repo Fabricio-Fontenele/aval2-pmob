@@ -28,10 +28,17 @@ their implementations.
 
 | Member | Main responsibility |
 | --- | --- |
-| Fabricio | Application foundation, custom authentication API, session management, and integration |
-| Francisco | PostgreSQL, object endpoints and adapters, deployment, and database permissions |
-| Ruan | Object listing, sign-in screen, navigation, and README consolidation |
-| Willamy | Object and account registration screens, validation, and acceptance checks |
+| Fabricio | Authentication contracts and API, server-side sessions, and Flutter authentication adapter |
+| Francisco | API foundation, PostgreSQL, object endpoints, deployment, and configuration |
+| Ruan | Flutter foundation, object models and adapter, listing, navigation, and integration |
+| Willamy | Validation, object registration, sign-in/sign-up UI, presentation session state, README, and acceptance evidence |
+
+The plan assigns each member four work packages totaling 16 relative effort
+points, plus five acceptance checks. Estimates include implementation, testing,
+module documentation, and review; they are not measured hours. Each author owns
+their fixes, Ruan coordinates integration, and Willamy consolidates documentation
+and evidence supplied by the team. Francisco handles SIGAA submission, with
+Ruan as backup.
 
 Replace the short names with every member's full name before academic submission.
 Each member must contribute identifiable commits and understand the complete flow.
