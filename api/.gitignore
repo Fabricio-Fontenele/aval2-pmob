@@ -1,0 +1,8 @@
+# Dart tools
+.dart_tool/
+.packages
+build/
+
+# Environment files
+.env
+.env.local
