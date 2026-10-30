@@ -8,11 +8,11 @@ Public repository: [Fabricio-Fontenele/aval2-pmob](https://github.com/Fabricio-F
 
 ## Project status
 
-The repository currently contains the assignment, development plan, agent
-instructions, and repository configuration. The Flutter application has not been
-scaffolded, the custom API has not been implemented, and no cloud service has been
-provisioned. Build, execution, and cloud setup instructions will be added with
-their implementations.
+The repository contains the assignment, development plan, agent instructions,
+and repository configuration. The custom Dart HTTP API foundation and database
+schema migrations are implemented in `api/` with automated tests and Docker
+support. The Flutter mobile application scaffolding and cloud hosting
+provisioning will be implemented in subsequent milestones.
 
 ## Planned features
 
