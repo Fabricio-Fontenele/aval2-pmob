@@ -10,6 +10,7 @@ dependencies:
   shelf: ^1.4.1
   shelf_router: ^1.1.4
   postgres: ^3.1.2
+  hashlib: ^2.4.2
 
 dev_dependencies:
   lints: ^3.0.0
