@@ -2,6 +2,35 @@ import 'package:lost_and_found_api/src/config/app_config.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('loads positive auth limits and a normalized trusted proxy allowlist',
+      () {
+    final config = AppConfig.fromEnvironment({
+      'AUTH_REGISTER_LIMIT': '2',
+      'AUTH_LOGIN_EMAIL_LIMIT': '3',
+      'AUTH_LOGIN_ADDRESS_LIMIT': '10',
+      'AUTH_MAX_CONCURRENT': '1',
+      'TRUSTED_PROXY_IPS': '127.0.0.1, ::1',
+    });
+    expect(config.authRegisterLimit, 2);
+    expect(config.authLoginEmailLimit, 3);
+    expect(config.authLoginAddressLimit, 10);
+    expect(config.authMaxConcurrent, 1);
+    expect(config.trustedProxyAddresses, {'127.0.0.1', '::1'});
+  });
+
+  test('rejects invalid auth limits and proxy addresses', () {
+    for (final values in [
+      {'AUTH_REGISTER_LIMIT': '0'},
+      {'AUTH_LOGIN_EMAIL_LIMIT': '-1'},
+      {'AUTH_LOGIN_ADDRESS_LIMIT': 'invalid'},
+      {'AUTH_MAX_CONCURRENT': '0'},
+      {'TRUSTED_PROXY_IPS': '*'},
+      {'SESSION_TTL_HOURS': '0'},
+    ]) {
+      expect(() => AppConfig.fromEnvironment(values), throwsFormatException);
+    }
+  });
+
   group('AppConfig', () {
     test('loads default values when environment is empty', () {
       final config = AppConfig.fromEnvironment({});
