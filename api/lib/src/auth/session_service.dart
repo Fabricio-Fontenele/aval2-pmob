@@ -25,16 +25,21 @@ class SessionService {
     }
   }
 
-  Future<IssuedSession> issue(String userId) async {
+  PendingSession prepareToken() {
     final token = base64Url
         .encode(List<int>.generate(32, (_) => _random.nextInt(256)))
         .replaceAll('=', '');
-    final session = AuthSession(
-      userId: userId,
+    return PendingSession(
+      token: token,
       expiresAt: _clock().toUtc().add(_lifetime),
     );
-    await _store.create(_hashToken(token), session);
-    return IssuedSession(token: token, session: session);
+  }
+
+  Future<IssuedSession> issue(String userId) async {
+    final pending = prepareToken();
+    final session = AuthSession(userId: userId, expiresAt: pending.expiresAt);
+    await _store.create(_hashToken(pending.token), session);
+    return IssuedSession(token: pending.token, session: session);
   }
 
   Future<AuthSession> authenticate(String token) async {

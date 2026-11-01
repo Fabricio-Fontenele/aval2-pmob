@@ -39,6 +39,13 @@ void main() {
     expect(store.sessions, hasLength(2));
   });
 
+  test('prepares a token without persisting a partial registration', () {
+    final pending = service.prepareToken();
+    expect(pending.token, matches(RegExp(r'^[A-Za-z0-9_-]{43}$')));
+    expect(pending.expiresAt, now.add(const Duration(hours: 24)));
+    expect(store.sessions, isEmpty);
+  });
+
   test('a new service restores an existing session from the store', () async {
     final issued = await service.issue('user-id');
     final restarted = SessionService(
