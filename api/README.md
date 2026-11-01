@@ -9,6 +9,13 @@ Backend REST API for the Campus Lost and Found system, built with Dart, Shelf, a
 - Graceful health checking with database status (`GET /health`).
 - Error handling middleware and CORS support.
 - Fully containerized with multi-stage Docker build for deployment on Render.
+- Server-side session issuance, validation, expiration, and revocation backed by
+  PostgreSQL; authorization middleware and session/logout HTTP endpoints.
+- Argon2id password-hashing support for the upcoming account endpoints.
+
+See [authentication contracts and progress](../docs/authentication.md) for the
+implemented session routes, planned registration/login contracts, integration
+tests, and current limitations. Registration and login are not implemented yet.
 
 ## Getting Started
 
@@ -31,8 +38,14 @@ Backend REST API for the Campus Lost and Found system, built with Dart, Shelf, a
 
 3. Set up environment variables:
    ```bash
-   cp .env.example .env
+   export DATABASE_URL='<connection string for your own PostgreSQL>'
+   export SESSION_TTL_HOURS=24
    ```
+
+   In PowerShell, use `$env:DATABASE_URL = '<connection string for your own PostgreSQL>'`
+   and `$env:SESSION_TTL_HOURS = '24'`. `.env.example` lists the available
+   parameters; the API reads process environment variables and does not load
+   `.env` files automatically. A nonpositive session lifetime is rejected.
 
 4. Run the API:
    ```bash
