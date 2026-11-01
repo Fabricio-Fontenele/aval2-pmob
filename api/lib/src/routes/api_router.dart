@@ -1,14 +1,33 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import '../auth/account_http.dart';
+import '../auth/auth_attempt_limiter.dart';
+import '../auth/auth_service.dart';
 import '../auth/session_http.dart';
 import '../auth/session_service.dart';
 import '../config/app_config.dart';
 import '../db/database_client.dart';
 
 Router buildApiRouter(AppConfig config,
-    {DatabaseClient? dbClient, SessionService? sessions}) {
+    {DatabaseClient? dbClient,
+    SessionService? sessions,
+    AuthService? auth,
+    AuthAttemptLimiter? authAttempts}) {
   final router = Router();
+
+  final accounts = AccountEndpoints(
+    auth: auth,
+    attempts: authAttempts ??
+        AuthAttemptLimiter(
+          registerLimit: config.authRegisterLimit,
+          loginEmailLimit: config.authLoginEmailLimit,
+          loginAddressLimit: config.authLoginAddressLimit,
+        ),
+    trustedProxies: config.trustedProxyAddresses,
+  );
+  router.post('/auth/register', accounts.register);
+  router.post('/auth/login', accounts.login);
 
   router.get('/auth/session', buildSessionHandler(sessions));
   router.post('/auth/logout', buildLogoutHandler(sessions));
