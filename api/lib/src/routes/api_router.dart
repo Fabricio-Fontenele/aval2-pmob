@@ -1,11 +1,17 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import '../auth/session_http.dart';
+import '../auth/session_service.dart';
 import '../config/app_config.dart';
 import '../db/database_client.dart';
 
-Router buildApiRouter(AppConfig config, {DatabaseClient? dbClient}) {
+Router buildApiRouter(AppConfig config,
+    {DatabaseClient? dbClient, SessionService? sessions}) {
   final router = Router();
+
+  router.get('/auth/session', buildSessionHandler(sessions));
+  router.post('/auth/logout', buildLogoutHandler(sessions));
 
   router.get('/health', (Request request) async {
     String dbStatus = 'not_configured';
