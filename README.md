@@ -11,10 +11,11 @@ Public repository: [Fabricio-Fontenele/aval2-pmob](https://github.com/Fabricio-F
 The repository contains the assignment, development plan, agent instructions,
 and repository configuration. The custom Dart HTTP API foundation and database
 schema migrations are implemented in `api/` with automated tests and Docker
-support. The first authentication increment adds password hashing, server-side
-session services, authorization middleware, and session/logout endpoints.
-Account registration, login, the Flutter mobile application, and cloud hosting
-provisioning will be implemented in subsequent milestones.
+support. The authentication backend includes registration, login, password
+hashing, server-side sessions, authorization middleware, and attempt limits.
+Local automated checks pass; PostgreSQL integration and HTTPS deployment still
+need verification. The Flutter mobile application and cloud hosting provisioning
+remain planned work.
 
 ## Planned features
 
@@ -51,7 +52,7 @@ Each member must contribute identifiable commits and understand the complete flo
 - [Development plan](docs/development_plan.md), in Portuguese, with ownership,
   milestones, dependencies, acceptance checks, and the proposed cloud service.
 - [Authentication contracts and progress](docs/authentication.md), with Fabricio's
-  initial P01/P03 implementation, test instructions, and remaining dependencies.
+  P01–P03 implementation, configuration, test instructions, and remaining dependencies.
 - [Agent instructions](AGENTS.md), in English.
 
 ## Technical direction

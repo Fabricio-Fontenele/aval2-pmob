@@ -11,11 +11,13 @@ Backend REST API for the Campus Lost and Found system, built with Dart, Shelf, a
 - Fully containerized with multi-stage Docker build for deployment on Render.
 - Server-side session issuance, validation, expiration, and revocation backed by
   PostgreSQL; authorization middleware and session/logout HTTP endpoints.
-- Argon2id password-hashing support for the upcoming account endpoints.
+- Account registration and login with Argon2id password hashing, atomic account
+  and session creation, generic credential errors, and configurable attempt limits.
 
 See [authentication contracts and progress](../docs/authentication.md) for the
-implemented session routes, planned registration/login contracts, integration
-tests, and current limitations. Registration and login are not implemented yet.
+implemented authentication routes, integration tests, and current limitations.
+The PostgreSQL account/session adapter still needs a configured test database
+and real deployment verification.
 
 ## Getting Started
 
@@ -68,6 +70,30 @@ Run static analysis:
 ```bash
 dart analyze
 ```
+
+The real PostgreSQL integration tests run when `TEST_DATABASE_URL` is set in the
+process environment. Use an isolated test database with schema creation
+privileges, as described in the [authentication guide](../docs/authentication.md#verification-and-handoff).
+They skip explicitly when that configuration is absent.
+
+## Authentication
+
+`POST /auth/register` and `POST /auth/login` accept JSON containing only `email`
+and `password`. Registration returns `201`; login returns `200`. Both return
+the public user ID, an opaque token, and UTC expiration. Account creation also
+creates the first session atomically. Password confirmation remains on the
+client, and no email-confirmation service is required for demonstration accounts.
+
+Use a demonstration address under `example.test` and a unique password with at
+least eight Unicode code points. Keep the original password, including spaces,
+and transmit the token only through the Bearer header over HTTPS after deployment.
+`GET /auth/session` restores a valid session; `POST /auth/logout` revokes it.
+
+`.env.example` includes attempt limits, maximum active authentication operations,
+and the trusted proxy allowlist. The default limiter belongs to one API process;
+counters reset on restart. Hosting configuration must verify the trusted proxy
+addresses before using forwarded client-address headers. See the guide for
+response codes, precise rules, and deployment parameters.
 
 ### Deployment to Render
 
