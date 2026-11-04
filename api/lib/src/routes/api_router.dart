@@ -8,12 +8,15 @@ import '../auth/session_http.dart';
 import '../auth/session_service.dart';
 import '../config/app_config.dart';
 import '../db/database_client.dart';
+import '../items/domain/item_store.dart';
+import '../items/item_http.dart';
 
 Router buildApiRouter(AppConfig config,
     {DatabaseClient? dbClient,
     SessionService? sessions,
     AuthService? auth,
-    AuthAttemptLimiter? authAttempts}) {
+    AuthAttemptLimiter? authAttempts,
+    ItemStore? itemStore}) {
   final router = Router();
 
   final accounts = AccountEndpoints(
@@ -31,6 +34,10 @@ Router buildApiRouter(AppConfig config,
 
   router.get('/auth/session', buildSessionHandler(sessions));
   router.post('/auth/logout', buildLogoutHandler(sessions));
+
+  final items = ItemEndpoints(itemStore: itemStore);
+  router.get('/items', items.listItems);
+  router.post('/items', requireSession(sessions)(items.createItem));
 
   router.get('/health', (Request request) async {
     String dbStatus = 'not_configured';

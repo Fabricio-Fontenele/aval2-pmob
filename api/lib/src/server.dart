@@ -6,6 +6,8 @@ import 'auth/data/postgres_session_store.dart';
 import 'auth/session_service.dart';
 import 'config/app_config.dart';
 import 'db/database_client.dart';
+import 'items/data/postgres_item_store.dart';
+import 'items/domain/item_store.dart';
 import 'middleware/cors.dart';
 import 'middleware/error_handler.dart';
 import 'routes/api_router.dart';
@@ -14,7 +16,8 @@ Handler buildServerHandler(AppConfig config,
     {DatabaseClient? dbClient,
     SessionService? sessions,
     AuthService? auth,
-    AuthAttemptLimiter? authAttempts}) {
+    AuthAttemptLimiter? authAttempts,
+    ItemStore? itemStore}) {
   final sessionService = sessions ??
       (dbClient == null
           ? null
@@ -22,6 +25,9 @@ Handler buildServerHandler(AppConfig config,
               store: PostgresSessionStore(dbClient),
               lifetime: Duration(hours: config.sessionTtlHours),
             ));
+  final items =
+      itemStore ?? (dbClient == null ? null : PostgresItemStore(dbClient));
+
   final router = buildApiRouter(
     config,
     dbClient: dbClient,
@@ -35,6 +41,7 @@ Handler buildServerHandler(AppConfig config,
                 maxConcurrentOperations: config.authMaxConcurrent,
               )),
     authAttempts: authAttempts,
+    itemStore: items,
   );
 
   final pipeline = const Pipeline()
