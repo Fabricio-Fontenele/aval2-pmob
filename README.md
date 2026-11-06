@@ -9,13 +9,19 @@ Public repository: [Fabricio-Fontenele/aval2-pmob](https://github.com/Fabricio-F
 ## Project status
 
 The repository contains the assignment, development plan, agent instructions,
-and repository configuration. The custom Dart HTTP API foundation and database
-schema migrations are implemented in `api/` with automated tests and Docker
-support. The authentication backend includes registration, login, password
-hashing, server-side sessions, authorization middleware, and attempt limits.
-Local automated checks pass; PostgreSQL integration and HTTPS deployment still
-need verification. The Flutter mobile application and cloud hosting provisioning
-remain planned work.
+and repository configuration. The custom Dart HTTP API in `api/` implements
+database schema migrations, account registration, login, Argon2id password
+hashing, server-side sessions, authorization middleware, attempt limits, and
+item listing and publication endpoints, with automated tests and Docker support.
+
+The Flutter application includes the Material 3 shell with Brazilian Portuguese
+localization (`P09`), domain validation for items and authentication (`P13`),
+the item registration notifier and screen (`P14`), and the presentation session
+notifier, authentication form state, and sign-in/sign-up screens (`P15`).
+Remaining work before final acceptance includes the Flutter HTTP adapters (`P04`
+and `P10`), item listing state and cards (`P11`), end-to-end screen navigation
+and dependency assembly (`P12`), and live PostgreSQL and HTTPS cloud deployment
+verification (`P08`).
 
 ## Planned features
 
@@ -79,7 +85,7 @@ setup must be documented when the integration is implemented.
 
 ## Development checks
 
-Once the Flutter application exists, run these from its root:
+Run these from the repository root to verify the Flutter application:
 
 ```sh
 flutter pub get
@@ -89,11 +95,11 @@ flutter test
 ```
 
 Build and run the configured mobile target with the documented cloud parameters
-before delivery. These commands have not been run against an application yet;
-there is no `pubspec.yaml` in the current project.
+before delivery once the HTTP adapters (`P04`, `P10`), screen integration (`P12`),
+and cloud deployment (`P08`) are connected.
 
-Once the separate Dart API package exists under `api/`, run `dart pub get`,
-`dart analyze`, and `dart test` from that directory and verify HTTPS deployment.
+From `api/`, run `dart pub get`, `dart analyze`, and `dart test`, and verify
+HTTPS deployment.
 
 ## Academic delivery
 
