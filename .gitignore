@@ -28,6 +28,9 @@ coverage/
 doc/api/
 **/flutter/ephemeral/
 **/Flutter/ephemeral/
+.widget_preview/
+app.*.symbols
+app.*.map.json
 
 # Android local configuration and generated files
 android/.gradle/

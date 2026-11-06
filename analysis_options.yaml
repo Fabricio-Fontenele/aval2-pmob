@@ -1,0 +1,10 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    # The API is a separate Dart package with its own analyzer configuration.
+    - api/**
+    - build/**
+    - android/**
+    - web/**
+    - linux/**
