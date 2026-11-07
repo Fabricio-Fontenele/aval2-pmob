@@ -18,10 +18,24 @@ The Flutter application includes the Material 3 shell with Brazilian Portuguese
 localization (`P09`), domain validation for items and authentication (`P13`),
 the item registration notifier and screen (`P14`), and the presentation session
 notifier, authentication form state, and sign-in/sign-up screens (`P15`).
-Remaining work before final acceptance includes the Flutter HTTP adapters (`P04`
-and `P10`), item listing state and cards (`P11`), end-to-end screen navigation
-and dependency assembly (`P12`), and live PostgreSQL and HTTPS cloud deployment
-verification (`P08`).
+The backend API is deployed live on Render with TLS/HTTPS, backed by PostgreSQL
+hosted on Supabase (`P08`), with schema migrations, health checks, and item routes
+verified in production. Remaining work before final acceptance includes the Flutter
+HTTP adapters (`P04` and `P10`), item listing state and cards (`P11`), and
+end-to-end screen navigation and dependency assembly (`P12`).
+
+## Cloud Deployment and Public API
+
+The backend API is deployed and accessible publicly:
+
+- **Public Base URL:** `https://campus-lost-found-api-zv3r.onrender.com`
+- **Health check:** `https://campus-lost-found-api-zv3r.onrender.com/health`
+- **Public items endpoint:** `https://campus-lost-found-api-zv3r.onrender.com/items`
+- **Database:** PostgreSQL on Supabase (project `mtcitijfwtdcrxepzqwp`)
+- **Hosting:** Render Web Service (Free tier, Docker runtime)
+
+Flutter builds use `--dart-define=API_BASE_URL=https://campus-lost-found-api-zv3r.onrender.com`
+to connect to the live cloud backend.
 
 ## Planned features
 

@@ -16,8 +16,14 @@ Backend REST API for the Campus Lost and Found system, built with Dart, Shelf, a
 
 See [authentication contracts and progress](../docs/authentication.md) for the
 implemented authentication routes, integration tests, and current limitations.
-The PostgreSQL account/session adapter still needs a configured test database
-and real deployment verification.
+
+## Live Deployment
+
+The API is deployed on **Render** backed by **Supabase PostgreSQL**:
+- **Base URL:** `https://campus-lost-found-api-zv3r.onrender.com`
+- **Health Check:** `https://campus-lost-found-api-zv3r.onrender.com/health`
+- **Items Endpoint:** `https://campus-lost-found-api-zv3r.onrender.com/items`
+- **Database:** Supabase PostgreSQL with TLS/SSL encryption enabled.
 
 ## Getting Started
 
