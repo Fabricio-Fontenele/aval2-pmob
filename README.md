@@ -137,12 +137,46 @@ flutter analyze
 flutter test
 ```
 
+Current Flutter verification summary:
+- `dart format .`: clean across all tracked Dart files.
+- `flutter analyze`: no issues found.
+- `flutter test`: 64 automated unit, notifier, and widget tests passing (`test/app/`, `test/features/lost_found/`, and `test/features/auth/`).
+
 Build and run the configured mobile target with the documented cloud parameters
-before delivery once the HTTP adapters (`P04`, `P10`), screen integration (`P12`),
-and cloud deployment (`P08`) are connected.
+before delivery once the HTTP adapters (`P04`, `P10`) and screen integration (`P12`)
+are connected to the deployed cloud API (`P08`).
 
 From `api/`, run `dart pub get`, `dart analyze`, and `dart test`, and verify
-HTTPS deployment.
+HTTPS deployment (see [`api/README.md`](api/README.md) and
+[`docs/authentication.md`](docs/authentication.md)).
+
+## Acceptance verification matrix (`P16`)
+
+Each member owns five acceptance checks defined in the
+[development plan](docs/development_plan.md#matriz-de-aceite-e-testes):
+
+| Check | Owner | Current evidence and status |
+| --- | --- | --- |
+| `A01`: List content and ordering | Ruan | API ordering (`created_at DESC`) verified in `api/test/routes/item_routes_test.dart`; Flutter list cards await `P11` |
+| `A02`: Empty state and manual refresh | Ruan | Pending `ItemListNotifier` and `ItemListScreen` implementation in `P11` |
+| `A03`: Field validation (`60`/`200` limits, blank rejection) | Willamy | Verified in `test/features/lost_found/domain/item_input_validator_test.dart` and `test/features/lost_found/presentation/item_form_screen_test.dart` |
+| `A04`: Successful object registration | Willamy | Form submission (`P14`) and API persistence (`P07`/`P08`) verified; live list update on mobile awaits `P10`–`P12` |
+| `A05`: Repeated submit protection | Willamy | Verified in `test/features/lost_found/presentation/item_form_notifier_test.dart` and `item_form_screen_test.dart` |
+| `A06`: Read failure and retry | Ruan | Pending `P10` and `P11` |
+| `A07`: Write failure and retry | Willamy | Verified in `test/features/lost_found/presentation/item_form_notifier_test.dart` and `item_form_screen_test.dart` |
+| `A08`: Save succeeded, refresh failed | Ruan | Pending `P11` and `P12` |
+| `A09`: Persistence and cross-installation sharing | Francisco | Live PostgreSQL persistence and public `GET /items` verified in `P08`; two-device mobile run awaits `P10`–`P12` |
+| `A10`: Remote access rules | Francisco | Verified in `api/test/routes/item_routes_test.dart` and `api/test/db/migrator_test.dart` |
+| `A11`: Material 3 UI, pt-BR, small screen, keyboard, and disposal | Willamy | Verified for `ItemFormScreen`, `LoginScreen`, and `RegisterScreen` in widget tests; `ItemListScreen` check awaits `P11`/`P12` |
+| `A12`: Reproducible clean-clone evaluation | Francisco | API and cloud deployment documented; final mobile clean-clone check awaits `P04` and `P10`–`P12` |
+| `A13`: User registration validation and atomic creation | Fabricio | Verified in `api/test/auth/` and `test/features/auth/`; end-to-end mobile adapter awaits `P04` |
+| `A14`: Sign-in and sign-out | Fabricio | Verified in `api/test/auth/` and `test/features/auth/`; mobile token storage awaits `P04` |
+| `A15`: Session restoration and expiration | Fabricio | Verified in `api/test/auth/session_service_test.dart` and `test/features/auth/presentation/auth_session_notifier_test.dart`; mobile adapter awaits `P04` |
+| `A16`: Protected navigation flow | Ruan | Pending `P12` navigation integration |
+| `A17`: Authentication concurrency and disposal | Fabricio | Verified in `api/test/auth/` and `test/features/auth/presentation/` |
+| `A18`: Account data and hash/token confidentiality | Fabricio | Verified in `api/test/auth/` (Argon2id password hashes, SHA-256 token digests, no sensitive fields in `/items` or `/auth/session`) |
+| `A19`: Server-side validation and rate limits | Francisco | Verified in `api/test/auth/auth_attempt_limiter_test.dart` and `api/test/routes/item_routes_test.dart` |
+| `A20`: Cloud infrastructure and restart durability | Francisco | Verified live on Render + Supabase PostgreSQL (`P08`) |
 
 ## Academic delivery
 
