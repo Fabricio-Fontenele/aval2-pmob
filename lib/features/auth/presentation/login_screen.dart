@@ -164,6 +164,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           errorMessage: _formNotifier.hasError
                               ? _formNotifier.errorMessage
                               : null,
+                          fieldErrors: _formNotifier.hasError
+                              ? _formNotifier.fieldErrors
+                              : const {},
                           onSubmit: _handleSubmit,
                           onNavigateToRegister: _handleNavigateToRegister,
                         );
@@ -184,12 +187,14 @@ class _LoginActionsSection extends StatelessWidget {
   const _LoginActionsSection({
     required this.isSubmitting,
     required this.errorMessage,
+    required this.fieldErrors,
     required this.onSubmit,
     required this.onNavigateToRegister,
   });
 
   final bool isSubmitting;
   final String? errorMessage;
+  final Map<String, String> fieldErrors;
   final VoidCallback onSubmit;
   final VoidCallback onNavigateToRegister;
 
@@ -225,6 +230,16 @@ class _LoginActionsSection extends StatelessWidget {
                       ),
                     ],
                   ),
+                  for (final detail in fieldErrors.values) ...[
+                    const SizedBox(height: 4),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32),
+                      child: Text(
+                        detail,
+                        style: TextStyle(color: colorScheme.onErrorContainer),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Align(
                     alignment: Alignment.centerRight,
