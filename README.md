@@ -37,15 +37,44 @@ The backend API is deployed and accessible publicly:
 Flutter builds use `--dart-define=API_BASE_URL=https://campus-lost-found-api-zv3r.onrender.com`
 to connect to the live cloud backend.
 
-## Planned features
+## Scope: official assignment vs. additional authentication
 
-- Shared cloud list of lost and found objects, newest first, with manual refresh.
-- Object registration with required name, description, location, and status.
-- Name limit of 60 characters, description limit of 200, and automatic creation time.
-- Loading, empty, success, and error states, with retry and duplicate-submit protection.
-- Material 3 interface in Brazilian Portuguese.
-- Additional requested scope: account registration, sign-in, sign-out, session
-  restoration, public browsing, and authenticated object publication.
+### Official assignment requirements (`RF01`–`RF05`, `RNF01`–`RNF03`)
+- Shared cloud list of lost and found objects, ordered newest first, with manual refresh and visual distinction between *Perdido* (`lost`) and *Encontrado* (`found`).
+- Object registration enforcing required fields, trimmed non-blank inputs, a 60-character limit for object name, a 200-character limit for description, required location and status, and automatic server-assigned creation timestamp.
+- Explicit loading, empty, success, and recoverable error states with retry actions and duplicate-submit protection.
+- Responsive Material 3 user interface in Brazilian Portuguese (`pt-BR`).
+
+### Additional requested scope (`AU01`–`AU05`)
+- **Custom authentication (`AU01`–`AU03`):** account registration and login by email and password (`>= 8` Unicode code points, local password confirmation), Argon2id password hashing on the custom Dart API, and revocable opaque bearer sessions persisted in PostgreSQL. Neither the Flutter app nor the API uses Supabase Auth.
+- **Publication authorization (`AU04`):** browsing and refreshing the object list remain public (`GET /items`), while publishing an object (`POST /items`) requires a valid session token and assigns authorship on the server from the authenticated session.
+- **Navigation and evaluation flow (`AU05`):** sign-in and account creation screens are accessible from the application flow, returning the user to the requested action after authentication and allowing sign-out at any time.
+
+## Evaluation guide and demonstration account
+
+Evaluators do not need team credentials, database secrets, or a personal email
+inbox. Demonstration accounts become active immediately upon registration without
+email confirmation:
+
+1. **Run the Flutter app against the public cloud API:**
+   ```sh
+   flutter pub get
+   flutter run --dart-define=API_BASE_URL=https://campus-lost-found-api-zv3r.onrender.com
+   ```
+   *(To build a local debug APK on Android: `flutter build apk --debug --dart-define=API_BASE_URL=https://campus-lost-found-api-zv3r.onrender.com`).*
+2. **Browse public items:** the home screen loads existing records from `GET /items` ordered newest first and supports manual refresh.
+3. **Create a demonstration account (`AU01`):**
+   - Open the sign-in/registration action and select **Criar uma conta**.
+   - Enter a test address such as `avaliador1@example.test` (never use personal data) and a password with at least 8 characters (for example, `SenhaDemo123`), repeat it in **Confirmar senha**, and tap **Criar conta**.
+   - The API creates the user and session atomically (`POST /auth/register`) and signs the app in immediately.
+4. **Publish a lost or found object (`RF02`, `AU04`):**
+   - Fill **Nome do objeto** (`<= 60` characters), **Descrição** (`<= 200` characters), **Local**, and **Situação** (*Perdido* or *Encontrado*), then tap **Salvar objeto**.
+   - Once the remote save succeeds, the list refreshes so the new record appears at the top.
+5. **Sign out and verify persistence (`AU03`, `RF05`):**
+   - Trigger sign-out (`POST /auth/logout`) to revoke the current token on the server.
+   - Restart the app or refresh from another installation to confirm that published objects remain publicly listed from PostgreSQL.
+
+> **Free-tier cold start note:** Render Free may spin down the container after periods of inactivity. The first request after an idle period can take 30–60 seconds while the container wakes up; if a timeout occurs, use the **Tentar novamente** action in the UI without duplicating writes.
 
 ## Team
 
