@@ -287,5 +287,102 @@ void main() {
         expect(sessionNotifier.isAuthenticated, isFalse);
       },
     );
+
+    testWidgets(
+      'A11: LoginScreen adapts to small screens, scaled text, open keyboard, displays server field errors, supports back navigation from RegisterScreen, and survives disposal while pending',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 480);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
+
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(
+              size: Size(320, 480),
+              viewInsets: EdgeInsets.only(bottom: 160),
+              textScaler: TextScaler.linear(1.5),
+            ),
+            child: MaterialApp(
+              theme: AppTheme.light,
+              home: LoginScreen(
+                repository: repository,
+                sessionNotifier: sessionNotifier,
+              ),
+            ),
+          ),
+        );
+
+        expect(tester.takeException(), isNull);
+
+        // Navigate to RegisterScreen and return to LoginScreen without errors.
+        await tester.ensureVisible(
+          find.byKey(LoginScreen.createAccountButtonKey),
+        );
+        await tester.tap(find.byKey(LoginScreen.createAccountButtonKey));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(RegisterScreen), findsOneWidget);
+
+        await tester.ensureVisible(
+          find.byKey(RegisterScreen.alreadyHaveAccountButtonKey),
+        );
+        await tester.tap(
+          find.byKey(RegisterScreen.alreadyHaveAccountButtonKey),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(LoginScreen), findsOneWidget);
+
+        repository.onLogin = (_, _) async {
+          throw const AuthRepositoryException(
+            'Não foi possível validar os dados informados.',
+            code: AuthFailureCode.invalidRequest,
+            fieldErrors: {'email': 'E-mail rejeitado pelo servidor.'},
+          );
+        };
+
+        await tester.ensureVisible(find.byKey(LoginScreen.emailFieldKey));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(LoginScreen.emailFieldKey),
+          'pessoa@example.test',
+        );
+        await tester.ensureVisible(find.byKey(LoginScreen.passwordFieldKey));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(LoginScreen.passwordFieldKey),
+          '12345678',
+        );
+        await tester.ensureVisible(find.byKey(LoginScreen.submitButtonKey));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(LoginScreen.submitButtonKey));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text('Não foi possível validar os dados informados.'),
+          findsOneWidget,
+        );
+        expect(find.text('E-mail rejeitado pelo servidor.'), findsOneWidget);
+
+        final completer = Completer<AuthUser>();
+        repository.onLogin = (_, _) => completer.future;
+
+        await tester.ensureVisible(find.byKey(LoginScreen.retryButtonKey));
+        await tester.tap(find.byKey(LoginScreen.retryButtonKey));
+        await tester.pump();
+
+        expect(find.text('Entrando...'), findsOneWidget);
+
+        await tester.pumpWidget(const SizedBox.shrink());
+        completer.complete(const AuthUser(id: 'disposed-login-user'));
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(sessionNotifier.isAuthenticated, isFalse);
+      },
+    );
   });
 }
