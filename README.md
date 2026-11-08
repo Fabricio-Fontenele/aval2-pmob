@@ -49,22 +49,20 @@ to connect to the live cloud backend.
 
 ## Team
 
-| Member | Main responsibility |
-| --- | --- |
-| Fabricio | Authentication contracts and API, server-side sessions, and Flutter authentication adapter |
-| Francisco | API foundation, PostgreSQL, object endpoints, deployment, and configuration |
-| Ruan | Flutter foundation, object models and adapter, listing, navigation, and integration |
-| Willamy | Validation, object registration, sign-in/sign-up UI, presentation session state, README, and acceptance evidence |
+| Member | Packages | Main responsibility |
+| --- | --- | --- |
+| Fabricio Fontenele Vieira | `P01`–`P04` | Authentication contracts and API, server-side sessions, and Flutter authentication adapter |
+| Francisco Alves Ribeiro Neto | `P05`–`P08` | API foundation, PostgreSQL, object endpoints, deployment, and configuration |
+| Ruan Pedro de Araujo Anjos | `P09`–`P12` | Flutter foundation, object models and adapter, listing, navigation, and integration |
+| Willamy Josue Santos Serejo | `P13`–`P16` | Validation, object registration, sign-in/sign-up UI, presentation session state, README, and acceptance evidence |
 
 The plan assigns each member four work packages totaling 16 relative effort
 points, plus five acceptance checks. Estimates include implementation, testing,
 module documentation, and review; they are not measured hours. Each author owns
 their fixes, Ruan coordinates integration, and Willamy consolidates documentation
 and evidence supplied by the team. Francisco handles SIGAA submission, with
-Ruan as backup.
-
-Replace the short names with every member's full name before academic submission.
-Each member must contribute identifiable commits and understand the complete flow.
+Ruan as backup. Each member contributes identifiable commits and understands the
+complete flow.
 
 ## Documentation
 
@@ -73,6 +71,8 @@ Each member must contribute identifiable commits and understand the complete flo
   milestones, dependencies, acceptance checks, and the proposed cloud service.
 - [Authentication contracts and progress](docs/authentication.md), with Fabricio's
   P01–P03 implementation, configuration, test instructions, and remaining dependencies.
+- [Validation, forms, and presentation session state](docs/validation_and_forms.md),
+  with Willamy's P13–P15 implementation and acceptance check evidence.
 - [Agent instructions](AGENTS.md), in English.
 
 ## Technical direction
