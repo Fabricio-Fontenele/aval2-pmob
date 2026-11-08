@@ -20,8 +20,9 @@ the item registration notifier and screen (`P14`), and the presentation session
 notifier, authentication form state, and sign-in/sign-up screens (`P15`).
 The backend API is deployed live on Render with TLS/HTTPS, backed by PostgreSQL
 hosted on Supabase (`P08`), with schema migrations, health checks, and item routes
-verified in production. Remaining work before final acceptance includes the Flutter
-HTTP adapters (`P04` and `P10`), item listing state and cards (`P11`), and
+verified in production. The Flutter authentication HTTP adapter and secure token
+store (`P04`) are implemented and covered by isolated tests. Remaining work before
+final acceptance includes the item HTTP adapter (`P10`), listing state and cards (`P11`), and
 end-to-end screen navigation and dependency assembly (`P12`).
 
 ## Cloud Deployment and Public API
@@ -55,6 +56,10 @@ to connect to the live cloud backend.
 Evaluators do not need team credentials, database secrets, or a personal email
 inbox. Demonstration accounts become active immediately upon registration without
 email confirmation:
+
+The steps below describe the final acceptance flow. Until `P10`–`P12` are
+connected, the executable home screen remains a placeholder; the HTTP and screen
+tests exercise the implemented components independently.
 
 1. **Run the Flutter app against the public cloud API:**
    ```sh
@@ -99,7 +104,8 @@ complete flow.
 - [Development plan](docs/development_plan.md), in Portuguese, with ownership,
   milestones, dependencies, acceptance checks, and the proposed cloud service.
 - [Authentication contracts and progress](docs/authentication.md), with Fabricio's
-  P01–P03 implementation, configuration, test instructions, and remaining dependencies.
+  P01–P04 implementation, configuration, adapter assembly guide, test instructions,
+  and remaining acceptance checks.
 - [Validation, forms, and presentation session state](docs/validation_and_forms.md),
   with Willamy's P13–P15 implementation and acceptance check evidence.
 - [Agent instructions](AGENTS.md), in English.
@@ -130,6 +136,11 @@ setup must be documented when the integration is implemented.
 
 Run these from the repository root to verify the Flutter application:
 
+The local baseline is Flutter 3.47.1 with Dart 3.13.1. The Dart minimum is
+`^3.13.1`, matching the supported 3.13 language features used by this application.
+The lockfile includes `http` and `flutter_secure_storage` 10.x; the latter matches
+the existing Android compile SDK 36 and minimum SDK 24.
+
 ```sh
 flutter pub get
 dart format .
@@ -138,12 +149,12 @@ flutter test
 ```
 
 Current Flutter verification summary:
-- `dart format .`: clean across all tracked Dart files.
+- `dart format --output=none --set-exit-if-changed lib test`: clean across Flutter source and tests.
 - `flutter analyze`: no issues found.
-- `flutter test`: 64 automated unit, notifier, and widget tests passing (`test/app/`, `test/features/lost_found/`, and `test/features/auth/`).
+- `flutter test`: 111 automated unit, notifier, adapter, and widget tests passing (`test/app/`, `test/features/lost_found/`, and `test/features/auth/`).
 
 Build and run the configured mobile target with the documented cloud parameters
-before delivery once the HTTP adapters (`P04`, `P10`) and screen integration (`P12`)
+before delivery once the item HTTP adapter (`P10`) and screen integration (`P12`)
 are connected to the deployed cloud API (`P08`).
 
 From `api/`, run `dart pub get`, `dart analyze`, and `dart test`, and verify
@@ -168,13 +179,13 @@ Each member owns five acceptance checks defined in the
 | `A09`: Persistence and cross-installation sharing | Francisco | Live PostgreSQL persistence and public `GET /items` verified in `P08`; two-device mobile run awaits `P10`–`P12` |
 | `A10`: Remote access rules | Francisco | Verified in `api/test/routes/item_routes_test.dart` and `api/test/db/migrator_test.dart` |
 | `A11`: Material 3 UI, pt-BR, small screen, keyboard, and disposal | Willamy | Verified for `ItemFormScreen`, `LoginScreen`, and `RegisterScreen` in widget tests; `ItemListScreen` check awaits `P11`/`P12` |
-| `A12`: Reproducible clean-clone evaluation | Francisco | API and cloud deployment documented; final mobile clean-clone check awaits `P04` and `P10`–`P12` |
-| `A13`: User registration validation and atomic creation | Fabricio | Verified in `api/test/auth/` and `test/features/auth/`; end-to-end mobile adapter awaits `P04` |
-| `A14`: Sign-in and sign-out | Fabricio | Verified in `api/test/auth/` and `test/features/auth/`; mobile token storage awaits `P04` |
-| `A15`: Session restoration and expiration | Fabricio | Verified in `api/test/auth/session_service_test.dart` and `test/features/auth/presentation/auth_session_notifier_test.dart`; mobile adapter awaits `P04` |
+| `A12`: Reproducible clean-clone evaluation | Francisco | API and cloud deployment documented; `P04` adapter implemented; final mobile clean-clone check awaits `P10`–`P12` |
+| `A13`: User registration validation and atomic creation | Fabricio | API, presentation, and `P04` HTTP adapter have isolated tests; real PostgreSQL and integrated mobile acceptance remain pending |
+| `A14`: Sign-in and sign-out | Fabricio | `P04` tests cover Bearer requests, secure token storage, definitive rejection, and retry; real-device flow awaits `P12` |
+| `A15`: Session restoration and expiration | Fabricio | API, notifier, and `P04` tests cover remote validation, rejection, outages, and stale responses; actual app/API restart acceptance remains pending |
 | `A16`: Protected navigation flow | Ruan | Pending `P12` navigation integration |
-| `A17`: Authentication concurrency and disposal | Fabricio | Verified in `api/test/auth/` and `test/features/auth/presentation/` |
-| `A18`: Account data and hash/token confidentiality | Fabricio | Verified in `api/test/auth/` (Argon2id password hashes, SHA-256 token digests, no sensitive fields in `/items` or `/auth/session`) |
+| `A17`: Authentication concurrency and disposal | Fabricio | API/presentation tests plus `P04` regression tests for logout during pending login/storage and late replies; final integrated acceptance awaits `P12` |
+| `A18`: Account data and hash/token confidentiality | Fabricio | API hash/serialization tests and `P04` storage channel tests; deployment logs, database permissions, and actual device storage still require inspection |
 | `A19`: Server-side validation and rate limits | Francisco | Verified in `api/test/auth/auth_attempt_limiter_test.dart` and `api/test/routes/item_routes_test.dart` |
 | `A20`: Cloud infrastructure and restart durability | Francisco | Verified live on Render + Supabase PostgreSQL (`P08`) |
 

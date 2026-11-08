@@ -26,22 +26,30 @@ service-account*.json
 build/
 coverage/
 doc/api/
+migrate_working_dir/
+flutter_assets/
+*.dill
+*.snapshot
 **/flutter/ephemeral/
 **/Flutter/ephemeral/
 .widget_preview/
 app.*.symbols
 app.*.map.json
 
-# Android local configuration and generated files
-android/.gradle/
-android/captures/
-android/local.properties
-android/key.properties
-android/app/debug/
-android/app/profile/
-android/app/release/
+# Local platform projects
+/android/
+/linux/
+
+# Native build caches
+.gradle/
+.kotlin/
+.cxx/
 
 # Apple dependencies and generated files
+.build/
+.buildlog/
+.swiftpm/
+DerivedData/
 **/Pods/
 **/.symlinks/
 **/Flutter/.last_build_id
@@ -52,14 +60,20 @@ android/app/release/
 **/Flutter/App.framework/
 **/Flutter/app.flx
 **/Flutter/app.zip
-**/Flutter/flutter_assets/
 **/Runner/GeneratedPluginRegistrant.*
 **/xcuserdata/
 **/*.xcuserstate
 
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
 # Compiled application artifacts
 *.apk
 *.aab
+*.aar
+*.jar
 *.ipa
 *.app/
 *.dSYM/
@@ -69,7 +83,14 @@ android/app/release/
 *.dylib
 *.class
 *.o
+*.obj
 *.a
+*.lib
+*.pdb
+*.wasm
+main.dart.js
+main.dart.js.*
+main.dart.mjs
 
 # Editors, operating systems, and logs
 .idea/

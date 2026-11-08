@@ -8,6 +8,7 @@ enum AuthFailureCode {
   tooManyAttempts,
   serviceUnavailable,
   networkError,
+  storageError,
 }
 
 abstract interface class AuthRepository {
@@ -68,6 +69,12 @@ class AuthRepositoryException implements Exception {
   const AuthRepositoryException.network([
     this.message = 'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.',
   ]) : code = AuthFailureCode.networkError,
+       fieldErrors = const {},
+       retryAfterSeconds = null;
+
+  const AuthRepositoryException.storage([
+    this.message = 'Não foi possível acessar a sessão salva neste dispositivo. Tente novamente.',
+  ]) : code = AuthFailureCode.storageError,
        fieldErrors = const {},
        retryAfterSeconds = null;
 

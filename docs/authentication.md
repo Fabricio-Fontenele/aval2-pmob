@@ -1,6 +1,6 @@
 # Authentication contracts and implementation progress
 
-This document records Fabricio's implementation increments for P01, P02, and P03
+This document records Fabricio's implementation increments for P01 through P04
 in the [development plan](development_plan.md). Authentication is additional
 requested scope; the [official assignment](pmob-aval2.pdf) does not require it.
 
@@ -10,15 +10,15 @@ requested scope; the [official assignment](pmob-aval2.pdf) does not require it.
 | --- | --- | --- |
 | P01 | Initial HTTP contracts below; Argon2id library selected and benchmarked locally | Francisco's review and benchmark on the free hosting environment from P05 |
 | P02 | API validation, registration/login services and routes, atomic account/session SQL, duplicate-email handling, and attempt/concurrency limits implemented and tested locally | Run the real PostgreSQL integration test and deployment checks; P13 must match the API's validation contract |
-| P03 | Session issuance, validation, expiration, revocation, PostgreSQL adapter, authorization middleware, and session/logout routes implemented | Run the PostgreSQL integration test; verify persistence across actual API restarts and HTTPS deployment; connect authorization to P07 |
-| P04 | Authentication HTTP endpoints available for the adapter | Flutter foundation from P09, secure token storage, and adapter tests |
+| P03 | Session issuance, validation, expiration, revocation, PostgreSQL adapter, session/logout routes, and authorization middleware connected to item publication | Run the PostgreSQL integration test; verify authentication persistence across actual API restarts and HTTPS deployment |
+| P04 | Flutter HTTP repository, secure token storage, error translation, stale-response protection, and adapter tests implemented | Connect the shared instance to P10/P12 and complete real-device acceptance |
 
 The API foundation already existed when this increment started. Its health
 endpoint and schema do not establish completion of P05/P06: cloud connectivity,
 private table permissions, database constraints, and free hosting viability
-still need their planned evidence. The Flutter scaffold and P13 validators are
-also absent. These dependencies affect completion, while independent session
-and cryptographic code can be tested now.
+still need their planned evidence. The Flutter scaffold, P13 validators, forms,
+and presentation notifiers are now available. P04 can be injected into these
+components; the application entry point still requires P12 integration.
 
 Registration and login are now available in the API. Local implementation does
 not establish cloud acceptance: database permissions, real PostgreSQL checks,
@@ -185,6 +185,88 @@ refresh token, automatic renewal, Supabase Auth, or device password persistence.
 The database owns session durability; API process restarts must not issue
 replacement sessions simply to restore a token.
 
+## Flutter authentication adapter (P04)
+
+`lib/features/auth/data/http_auth_repository.dart` implements the existing
+`AuthRepository` contract using [`http`](https://pub.dev/packages/http).
+The domain and presentation layers receive `AuthUser` and
+`AuthRepositoryException`, without HTTP or platform storage types.
+
+- Registration and login send only normalized email and the original password.
+  A successful response must contain a nonblank user ID, a timezone-qualified
+  expiration, and a 43-character Base64URL token before local persistence occurs.
+  Passwords and password confirmation are never stored on the device.
+- Restoration reads the saved token and validates it through `GET /auth/session`.
+  A missing token returns no user without making a request. A malformed local
+  token is removed without transmission. A `401` removes the rejected token;
+  transport failures and service outages preserve it for explicit retry.
+- Logout deletes the local token after a confirmed `204` or definitive `401`.
+  Other failures retain it. If the server revoked a token but its response was
+  lost, retry can safely clear that token when the server rejects it.
+- Client exceptions and timeouts become `networkError`; malformed successful
+  responses and unexpected HTTP statuses become `serviceUnavailable`. Input
+  errors, invalid credentials, duplicate accounts, and attempt limits retain
+  their existing domain codes. Field errors are immutable and limited to email
+  and password; `Retry-After` supports the API's positive integer seconds.
+- The default request timeout is 75 seconds to accommodate the documented cold
+  start. Requests are not automatically retried or redirected. A timeout does
+  not prove that the server did not create an account; retry registration may
+  return `email_in_use`, in which case the user can sign in.
+- An operation generation prevents an old login from persisting a token after
+  logout. Secure storage operations are serialized so pending writes cannot
+  restore a token after logout, and old rejection/revocation responses cannot
+  delete a newer session. A storage failure reaches its caller without blocking
+  subsequent retry operations.
+
+`SecureSessionTokenStore` implements the small `SessionTokenStore` boundary with
+[`flutter_secure_storage` 10.x](https://pub.dev/packages/flutter_secure_storage/versions/10.0.0).
+This release supports the project's Android compile SDK 36 and minimum SDK 24.
+It stores only `lost_and_found.session_token`, deletes only that key, and converts
+expected platform/plugin failures into `storageError` with safe Portuguese
+feedback. Android application backup is disabled to avoid restoring credentials
+without their device keys. Unit tests simulate the platform channel; they do not
+prove encryption or restart behavior on a physical device.
+
+### Assembly and P10/P12 handoff
+
+At the application composition boundary, initialize Flutter bindings before
+using platform storage and create one shared authentication repository:
+
+```dart
+WidgetsFlutterBinding.ensureInitialized();
+final client = http.Client();
+const tokenStore = SecureSessionTokenStore();
+final authRepository = HttpAuthRepository.fromEnvironment(
+  client: client,
+  tokenStore: tokenStore,
+);
+final sessionNotifier = AuthSessionNotifier(repository: authRepository);
+```
+
+Import `http`, the two data implementations, and the existing presentation
+notifier in the composition module. Supply `API_BASE_URL` with `--dart-define`.
+The factory rejects missing configuration; the constructor accepts HTTPS and
+loopback HTTP for local tests, rejects embedded credentials/query/fragment, and
+preserves an optional API path prefix. The public cloud URL is in the README.
+
+P12 owns inserting these dependencies into the app, scheduling session restoration
+outside `build()`, passing the repository/notifier to the existing login and
+registration screens, and protecting navigation. The composition owner disposes
+the notifier and closes the injected client when their lifetime ends; the
+repository does not close a client shared with other adapters.
+
+P10 may receive `authRepository.getSessionToken` as a data-layer callback for
+the protected item request. This reads a credential; it does not establish that
+the session is valid. Send it only in the Bearer header. On a protected `401`,
+call `await authRepository.invalidateSession(sentToken)`. The returned boolean
+indicates whether that rejected token was still current and was removed. Publish
+session-expiration feedback only for the current session, using the existing
+`onUnauthorized`/`handleSessionExpired` presentation flow. An older request must
+not log out a newer session, and publication must not replay automatically.
+
+The executable application still opens the placeholder list until P10-P12 are
+assembled. Implementing P04 does not complete the four-screen acceptance flow.
+
 ## Cryptographic choice and local evidence
 
 The API adds [`hashlib` 2.4.2](https://pub.dev/packages/hashlib), a pure Dart library
@@ -279,14 +361,37 @@ and login HTTP flows were verified with test-only storage; no successful remote
 registration, database rollback/concurrency run, or HTTPS check is claimed here.
 
 The first regression test failed with `404` instead of `401` before the session
-routes were implemented. Local database credentials, Docker/PostgreSQL tooling,
-and cloud deployment are unavailable in this workspace. Do not mark A13, A14,
+routes were implemented. At that checkpoint, local database credentials,
+Docker/PostgreSQL tooling, and cloud deployment were unavailable. Do not mark A13, A14,
 A15, A17, or A18 as fully accepted based on isolated tests: account flows, mobile lifecycle,
 real database transaction verification, deployment, and secure device storage remain pending.
 
 Next, run the integration tests with Francisco's P06 database setup and verify
-the deployed routes in P08. Willamy's P13 validation must follow the implemented
-rules above. P04 can consume the available HTTP endpoints once P09 supplies the
-Flutter package. Francisco can connect `requireSession` to `POST /items` while
-keeping object reads public. No remote push or hosting deployment is performed
-as part of this local P02 implementation.
+the deployed authentication flows in P08. The available P13 validators follow
+the API's normalization and Unicode length rules. P04 now consumes the HTTP
+contracts; P10/P12 still need the shared adapter and navigation assembly.
+`requireSession` already protects `POST /items`, while object reads remain public.
+The local P04 work does not push commits or deploy hosting changes.
+
+Local P04 verification on November 8, 2026, with Flutter 3.47.1 / Dart 3.13.1:
+
+- `flutter pub get --offline`: completed.
+- `dart format --output=none --set-exit-if-changed lib test`: 30 files, unchanged.
+- `flutter --no-version-check analyze --no-pub`: no issues.
+- `flutter --no-version-check test --no-pub`: 111 passed, including 47 P04 tests.
+- The environment factory test also passed with
+  `--dart-define=API_BASE_URL=https://api.example.test` and a test-only HTTP client.
+- Web build with the public API parameter: completed, including the Wasm dry run,
+  with a nonblocking CupertinoIcons font warning. Artifacts remain ignored.
+- Web development server: started and returned HTTP `200`; headless browser
+  startup timed out, so visual rendering and authentication were not confirmed.
+- Android debug build: interrupted during the Gradle distribution download;
+  no APK was verified. No Android device/emulator was connected.
+
+Physical secure storage, real account flows, database transactions, and app/API
+restart acceptance remain unverified by this isolated test suite.
+
+The SDK minimum changed from `^3.13.4` to `^3.13.1`; the existing application and
+new adapter pass their checks on that baseline. Dependency resolution also
+updated the Flutter SDK-pinned transitive packages in the lockfile. The API
+package and its dependency constraints were not changed.
