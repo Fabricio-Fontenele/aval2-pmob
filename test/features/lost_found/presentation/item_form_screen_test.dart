@@ -123,6 +123,23 @@ void main() {
           findsOneWidget,
         );
         expect(repository.createCallCount, 0);
+
+        final exact60Name = 'A' * 60;
+        final exact200Description = 'B' * 200;
+        await _fillValidForm(
+          tester,
+          name: exact60Name,
+          description: exact200Description,
+          location: 'Bloco A',
+          status: ItemStatus.lost,
+        );
+
+        await tester.tap(find.byKey(ItemFormScreen.submitButtonKey));
+        await tester.pumpAndSettle();
+
+        expect(repository.createCallCount, 1);
+        expect(repository.lastSubmittedName, exact60Name);
+        expect(repository.lastSubmittedDescription, exact200Description);
       },
     );
 
@@ -236,7 +253,55 @@ void main() {
     );
 
     testWidgets(
-      'A11: adapts to small screen and enlarged text scaling without layout overflow and survives disposal while pending',
+      'A04 & A07: displays server field errors and notifies onUnauthorized when session expires (401)',
+      (tester) async {
+        var unauthorizedCount = 0;
+        repository.onCreateItem = () async {
+          throw const ItemRepositoryException(
+            'Dados inválidos no servidor.',
+            fieldErrors: {
+              'name': 'O nome informado foi rejeitado pelo servidor.',
+            },
+          );
+        };
+
+        await tester.pumpWidget(
+          _buildTestApp(
+            repository: repository,
+            onUnauthorized: () {
+              unauthorizedCount++;
+            },
+          ),
+        );
+        await _fillValidForm(tester);
+
+        await tester.tap(find.byKey(ItemFormScreen.submitButtonKey));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Dados inválidos no servidor.'), findsOneWidget);
+        expect(
+          find.text('O nome informado foi rejeitado pelo servidor.'),
+          findsOneWidget,
+        );
+        expect(unauthorizedCount, 0);
+
+        repository.onCreateItem = () async {
+          throw const ItemRepositoryException.unauthorized();
+        };
+
+        await tester.tap(find.byKey(ItemFormScreen.retryButtonKey));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text('Sessão inválida ou expirada. Entre novamente.'),
+          findsOneWidget,
+        );
+        expect(unauthorizedCount, 1);
+      },
+    );
+
+    testWidgets(
+      'A11: adapts to small screen, enlarged text scaling, and open keyboard without layout overflow and survives disposal while pending',
       (tester) async {
         tester.view.physicalSize = const Size(320, 480);
         tester.view.devicePixelRatio = 1.0;
@@ -252,6 +317,7 @@ void main() {
           MediaQuery(
             data: const MediaQueryData(
               size: Size(320, 480),
+              viewInsets: EdgeInsets.only(bottom: 180),
               textScaler: TextScaler.linear(1.5),
             ),
             child: _buildTestApp(repository: repository),

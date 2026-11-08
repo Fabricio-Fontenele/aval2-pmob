@@ -178,6 +178,9 @@ class _ItemFormScreenState extends State<ItemFormScreen> {
                           errorMessage: _notifier.hasError
                               ? _notifier.errorMessage
                               : null,
+                          fieldErrors: _notifier.hasError
+                              ? _notifier.fieldErrors
+                              : const {},
                           onSubmit: _handleSubmit,
                         );
                       },
@@ -197,11 +200,13 @@ class _SubmissionActionsSection extends StatelessWidget {
   const _SubmissionActionsSection({
     required this.isSubmitting,
     required this.errorMessage,
+    required this.fieldErrors,
     required this.onSubmit,
   });
 
   final bool isSubmitting;
   final String? errorMessage;
+  final Map<String, String> fieldErrors;
   final VoidCallback onSubmit;
 
   @override
@@ -236,6 +241,16 @@ class _SubmissionActionsSection extends StatelessWidget {
                       ),
                     ],
                   ),
+                  for (final detail in fieldErrors.values) ...[
+                    const SizedBox(height: 4),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32),
+                      child: Text(
+                        detail,
+                        style: TextStyle(color: colorScheme.onErrorContainer),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Align(
                     alignment: Alignment.centerRight,
