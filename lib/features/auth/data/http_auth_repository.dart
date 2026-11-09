@@ -3,17 +3,19 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../../core/api_base_url.dart';
 import '../domain/auth_repository.dart';
 import '../domain/auth_user.dart';
+import '../domain/session_token_provider.dart';
 import 'session_token_store.dart';
 
-class HttpAuthRepository implements AuthRepository {
+class HttpAuthRepository implements AuthRepository, SessionTokenProvider {
   HttpAuthRepository({
     required Uri baseUrl,
     required this._client,
     required this._tokenStore,
     Duration requestTimeout = const Duration(seconds: 75),
-  }) : _baseUrl = _normalizeBaseUrl(baseUrl),
+  }) : _baseUrl = ApiBaseUrl.normalize(baseUrl),
        _requestTimeout = requestTimeout {
     if (requestTimeout <= Duration.zero) {
       throw ArgumentError('requestTimeout must be positive.');
@@ -25,14 +27,8 @@ class HttpAuthRepository implements AuthRepository {
     required SessionTokenStore tokenStore,
     Duration requestTimeout = const Duration(seconds: 75),
   }) {
-    const address = String.fromEnvironment('API_BASE_URL');
-    if (address.isEmpty) {
-      throw StateError(
-        'Set API_BASE_URL with --dart-define before assembling the HTTP repositories.',
-      );
-    }
     return HttpAuthRepository(
-      baseUrl: Uri.parse(address),
+      baseUrl: ApiBaseUrl.fromEnvironment(),
       client: client,
       tokenStore: tokenStore,
       requestTimeout: requestTimeout,
@@ -49,25 +45,6 @@ class HttpAuthRepository implements AuthRepository {
   );
   int _sessionEpoch = 0;
   Future<void> _tokenOperations = Future<void>.value();
-
-  static Uri _normalizeBaseUrl(Uri url) {
-    const loopbackHosts = {'localhost', '127.0.0.1', '::1', '[::1]'};
-    final secure =
-        url.scheme == 'https' ||
-        (url.scheme == 'http' && loopbackHosts.contains(url.host));
-    if (!secure ||
-        url.host.isEmpty ||
-        url.userInfo.isNotEmpty ||
-        url.hasQuery ||
-        url.hasFragment) {
-      throw ArgumentError(
-        'API_BASE_URL must use HTTPS (or loopback HTTP) without credentials, query, or fragment.',
-      );
-    }
-    return url.replace(
-      path: url.path.endsWith('/') ? url.path : '${url.path}/',
-    );
-  }
 
   @override
   Future<AuthUser> register({
@@ -136,6 +113,7 @@ class HttpAuthRepository implements AuthRepository {
   }
 
   /// Clears a rejected bearer token without discarding a newer session.
+  @override
   Future<bool> invalidateSession(String rejectedToken) => _withTokens(() async {
     if (await _tokenStore.readToken() != rejectedToken) return false;
     await _tokenStore.deleteToken();
@@ -143,6 +121,7 @@ class HttpAuthRepository implements AuthRepository {
   });
 
   /// Supplies the bearer credential to data adapters; it does not validate it remotely.
+  @override
   Future<String?> getSessionToken() => _withTokens(() async {
     final token = await _tokenStore.readToken();
     if (token == null) return null;
