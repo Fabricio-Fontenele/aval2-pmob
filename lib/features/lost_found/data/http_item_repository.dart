@@ -9,11 +9,6 @@ import '../domain/item_repository.dart';
 import '../domain/item_status.dart';
 import '../domain/lost_found_item.dart';
 
-/// Reads and publishes items through the team-owned HTTP API.
-///
-/// Reading is public; publishing sends the bearer token supplied by
-/// [SessionTokenProvider] and never carries authorship, which the API assigns
-/// from the validated session.
 class HttpItemRepository implements ItemRepository {
   HttpItemRepository({
     required Uri baseUrl,
@@ -88,7 +83,6 @@ class HttpItemRepository implements ItemRepository {
       return;
     }
     if (response.statusCode == 401) {
-      // The API rejected this credential; drop it so the next attempt signs in.
       await sessionTokens.invalidateSession(token);
       throw const ItemRepositoryException.unauthorized();
     }
@@ -114,8 +108,6 @@ class HttpItemRepository implements ItemRepository {
     Future<http.Response> send() async =>
         http.Response.fromStream(await client.send(request));
     try {
-      // A failed request is never retried here: repeating a publication
-      // automatically could persist the same object twice.
       return await send().timeout(_requestTimeout);
     } on http.ClientException {
       throw const ItemRepositoryException.network();
@@ -126,8 +118,6 @@ class HttpItemRepository implements ItemRepository {
     }
   }
 
-  /// Decodes the listing and normalizes it to newest first, so the presentation
-  /// never depends on the order in which the records arrived.
   List<LostFoundItem> _readItems(http.Response response) {
     final Object? body;
     try {
@@ -207,7 +197,7 @@ class HttpItemRepository implements ItemRepository {
         }
       }
     } on FormatException {
-      // Gateways may return an HTML error page instead of the API envelope.
+      return const {};
     }
     return Map.unmodifiable(fields);
   }

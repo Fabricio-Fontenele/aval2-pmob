@@ -96,7 +96,6 @@ abstract final class AuthInputValidator {
 
     return ValidatedAuthCredentials(
       email: normalizeEmail(email),
-      // Validated above as non-null and non-blank without altering its bytes.
       password: password!,
     );
   }
@@ -132,7 +131,6 @@ abstract final class AuthInputValidator {
 
     return ValidatedAuthCredentials(
       email: normalizeEmail(email),
-      // Validated above as non-null and non-blank without altering its bytes.
       password: password!,
     );
   }

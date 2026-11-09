@@ -8,7 +8,6 @@ class AccountCredentials {
 }
 
 abstract interface class AccountStore {
-  /// Commits the normalized account and its first session atomically.
   Future<String> create(
       String email, String passwordHash, PendingSession session);
   Future<AccountCredentials?> findByEmail(String email);

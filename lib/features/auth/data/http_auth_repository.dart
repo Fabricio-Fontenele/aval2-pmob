@@ -112,7 +112,6 @@ class HttpAuthRepository implements AuthRepository, SessionTokenProvider {
     if (operationEpoch == _sessionEpoch) await invalidateSession(token);
   }
 
-  /// Clears a rejected bearer token without discarding a newer session.
   @override
   Future<bool> invalidateSession(String rejectedToken) => _withTokens(() async {
     if (await _tokenStore.readToken() != rejectedToken) return false;
@@ -120,7 +119,6 @@ class HttpAuthRepository implements AuthRepository, SessionTokenProvider {
     return true;
   });
 
-  /// Supplies the bearer credential to data adapters; it does not validate it remotely.
   @override
   Future<String?> getSessionToken() => _withTokens(() async {
     final token = await _tokenStore.readToken();
@@ -131,13 +129,10 @@ class HttpAuthRepository implements AuthRepository, SessionTokenProvider {
   });
 
   Future<T> _withTokens<T>(Future<T> Function() operation) {
-    // Serialize secure writes and compare/delete pairs so logout cannot race them.
     final result = _tokenOperations.then((_) => operation());
     _tokenOperations = result.then<void>(
       (_) {},
-      onError: (Object error, StackTrace stack) {
-        // The caller receives the original failure; subsequent operations may retry.
-      },
+      onError: (Object error, StackTrace stack) {},
     );
     return result;
   }

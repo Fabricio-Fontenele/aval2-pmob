@@ -66,7 +66,6 @@ void main() {
         )),
       );
 
-      // Exactly 60 characters is allowed
       final exact60 = 'A' * 60;
       final item = NewItem.validate(
         name: exact60,

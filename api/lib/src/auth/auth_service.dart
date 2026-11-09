@@ -41,7 +41,6 @@ class AuthService {
   Future<IssuedSession> login(AuthCredentials credentials) =>
       _withCapacity(() async {
         final account = await _accounts.findByEmail(credentials.email);
-        // An unknown email still performs an Argon2id verification.
         final hash = account?.passwordHash ??
             await (_dummyHash ??=
                 _passwords.hash(_sessions.prepareToken().token));

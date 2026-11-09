@@ -90,7 +90,6 @@ Handler buildSessionHandler(SessionService? sessions) {
 
 Handler buildLogoutHandler(SessionService? sessions) {
   return requireSession(sessions)((Request request) async {
-    // The middleware guarantees both the service and a well-formed bearer token.
     await sessions!.revoke(readBearerToken(request)!);
     return Response(204, headers: {'cache-control': 'no-store'});
   });

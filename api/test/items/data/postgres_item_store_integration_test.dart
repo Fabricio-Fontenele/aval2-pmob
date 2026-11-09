@@ -36,7 +36,6 @@ void main() {
     final database = ConnectionDatabaseClient(connection);
     await DatabaseMigrator(database).runMigrations();
 
-    // Create a real user to satisfy the foreign key constraint.
     final userResult = await connection.execute('''
 INSERT INTO users (email, password_hash)
 VALUES ('owner@example.test', 'hash123')
@@ -71,13 +70,11 @@ RETURNING id;
 
     final items = await store.listItems();
     expect(items, hasLength(2));
-    // Newest first ordering:
     expect(items[0].id, createdSecond.id);
     expect(items[0].name, 'Item Mais Recente');
     expect(items[1].id, createdFirst.id);
     expect(items[1].name, 'Item Mais Antigo');
 
-    // Foreign key integrity check: invalid user ID must throw ItemStorageException.
     const nonExistentUserId = '00000000-0000-0000-0000-000000000099';
     await expectLater(
       store.createItem(firstItem, userId: nonExistentUserId),

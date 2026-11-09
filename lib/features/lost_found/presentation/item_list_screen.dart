@@ -12,10 +12,6 @@ import 'item_date_format.dart';
 import 'item_form_screen.dart';
 import 'item_list_notifier.dart';
 
-/// Public listing of lost and found objects and entry point of the item flow.
-///
-/// Browsing and refreshing never require a session; publishing an object asks
-/// for sign-in first and returns to the requested screen afterwards.
 class ItemListScreen extends StatefulWidget {
   const ItemListScreen({
     super.key,
@@ -70,7 +66,6 @@ class _ItemListScreenState extends State<ItemListScreen> {
     super.dispose();
   }
 
-  /// Opens the registration form, asking for sign-in when there is no session.
   Future<void> _handlePublish() async {
     if (_isNavigating) {
       return;
@@ -79,7 +74,6 @@ class _ItemListScreenState extends State<ItemListScreen> {
     try {
       if (!widget.sessionNotifier.isAuthenticated) {
         final authenticated = await _openLogin();
-        // Cancelling sign-in keeps the public listing available.
         if (!mounted || authenticated != true) {
           return;
         }
@@ -125,20 +119,16 @@ class _ItemListScreenState extends State<ItemListScreen> {
     if (!mounted || saved != true) {
       return;
     }
-    // The remote save is already confirmed; only the listing is refreshed here.
     _showMessage('Objeto cadastrado com sucesso.');
     await _notifier.refreshAfterSave();
   }
 
-  /// Reacts to a session the API rejected while the form was being submitted.
   void _handleExpiredSession() {
     widget.sessionNotifier.handleSessionExpired();
     if (!mounted || _isPromptingExpiredSession) {
       return;
     }
     _isPromptingExpiredSession = true;
-    // The form stays mounted underneath, so signing in returns to it with the
-    // typed data preserved and the save can be retried without losing it.
     _openLogin().whenComplete(() => _isPromptingExpiredSession = false);
   }
 
@@ -166,7 +156,6 @@ class _ItemListScreenState extends State<ItemListScreen> {
       appBar: AppBar(
         title: const Text('Achados e Perdidos'),
         actions: [
-          // Only the refresh control depends on the state of the remote read.
           ListenableBuilder(
             listenable: _notifier,
             builder: (context, _) => IconButton(
@@ -176,7 +165,6 @@ class _ItemListScreenState extends State<ItemListScreen> {
               icon: const Icon(Icons.refresh),
             ),
           ),
-          // Only the session control depends on the authentication state.
           ListenableBuilder(
             listenable: widget.sessionNotifier,
             builder: (context, _) => _SessionAction(
@@ -304,8 +292,6 @@ class _ItemListBody extends StatelessWidget {
   }
 }
 
-/// Keeps a short state message centered while remaining scrollable, so text
-/// scaling and small screens never overflow and pull to refresh still works.
 class _CenteredScrollable extends StatelessWidget {
   const _CenteredScrollable({required this.onRefresh, required this.child});
 
@@ -320,8 +306,6 @@ class _CenteredScrollable extends StatelessWidget {
       onRefresh: onRefresh,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // Reserve the vertical padding so a short message stays centered and
-          // a long one scrolls instead of overflowing.
           final minHeight = constraints.hasBoundedHeight
               ? math.max(0.0, constraints.maxHeight - _verticalPadding)
               : 0.0;
@@ -486,8 +470,6 @@ class _ErrorBanner extends StatelessWidget {
   }
 }
 
-/// Keeps a confirmed save distinguishable from the failed refresh that follows
-/// it, so retrying the refresh is never read as republishing the object.
 const _savedItemNotice =
     'O objeto foi salvo no servidor, mas a lista não foi atualizada. '
     'Tente atualizar novamente; o objeto não será cadastrado outra vez.';
@@ -524,8 +506,6 @@ class _ItemCard extends StatelessWidget {
           children: [
             Text(item.name, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
-            // The status is announced by its label and reinforced by color and
-            // icon, so it does not depend on color perception alone.
             Align(
               alignment: Alignment.centerLeft,
               child: Container(

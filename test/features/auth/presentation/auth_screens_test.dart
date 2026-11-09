@@ -278,7 +278,6 @@ void main() {
 
         expect(repository.registerCallCount, 1);
 
-        // Dispose while operation is pending.
         await tester.pumpWidget(const SizedBox.shrink());
         completer.complete(const AuthUser(id: 'late-user'));
         await tester.pump();
@@ -317,7 +316,6 @@ void main() {
 
         expect(tester.takeException(), isNull);
 
-        // Navigate to RegisterScreen and return to LoginScreen without errors.
         await tester.ensureVisible(
           find.byKey(LoginScreen.createAccountButtonKey),
         );

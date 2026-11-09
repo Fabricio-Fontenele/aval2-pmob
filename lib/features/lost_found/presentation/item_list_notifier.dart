@@ -5,10 +5,6 @@ import '../domain/lost_found_item.dart';
 
 enum ItemListStatus { initial, loading, loaded, failed }
 
-/// Holds the shared listing content and the state of its remote reads.
-///
-/// A failed read keeps the last content that was loaded successfully, so a
-/// refresh failure never empties the list the user is already browsing.
 class ItemListNotifier extends ChangeNotifier {
   ItemListNotifier({required this.repository});
 
@@ -28,20 +24,12 @@ class ItemListNotifier extends ChangeNotifier {
   bool get isEmpty => _status == ItemListStatus.loaded && _items.isEmpty;
   String? get errorMessage => _errorMessage;
 
-  /// Whether a confirmed remote save still has not appeared in the listing.
-  ///
-  /// It keeps a persisted object distinguishable from a failed refresh, so
-  /// retrying the refresh never republishes the object.
   bool get savedItemAwaitingRefresh => _savedItemAwaitingRefresh;
 
-  /// Loads the listing for the first time or after a failure.
   Future<void> load() => _read();
 
-  /// Reads the listing again on demand, keeping the current content visible.
   Future<void> refresh() => _read();
 
-  /// Reads the listing after a confirmed save, even while another read runs,
-  /// so the new object cannot be missed by an older in-flight response.
   Future<void> refreshAfterSave() {
     _savedItemAwaitingRefresh = true;
     return _read(force: true);

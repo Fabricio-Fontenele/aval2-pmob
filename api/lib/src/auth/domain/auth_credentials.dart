@@ -27,7 +27,6 @@ class AuthCredentials {
       errors['password'] = 'A senha deve ter pelo menos 8 caracteres.';
     }
     if (errors.isNotEmpty) throw InvalidAuthInput(errors);
-    // The checks above guarantee a nonblank String without changing its bytes.
     return AuthCredentials._(normalizedEmail, password as String);
   }
 

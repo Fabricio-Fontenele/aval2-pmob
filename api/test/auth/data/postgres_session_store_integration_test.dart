@@ -37,7 +37,6 @@ void main() {
       ),
     );
     addTearDown(connection.close);
-    // A connection-local temporary table isolates this test from application data.
     await connection.execute('''
 CREATE TEMPORARY TABLE sessions (
   token_hash TEXT PRIMARY KEY,

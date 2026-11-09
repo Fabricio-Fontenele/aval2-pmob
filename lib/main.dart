@@ -9,10 +9,6 @@ import 'features/auth/data/secure_session_token_store.dart';
 import 'features/auth/presentation/auth_session_notifier.dart';
 import 'features/lost_found/data/http_item_repository.dart';
 
-/// Assembles the concrete dependencies and starts the application.
-///
-/// The HTTP client, the repositories, and the session notifier live for the
-/// whole process: they are created once here and injected through constructors.
 void main() {
   final client = http.Client();
   try {
@@ -25,7 +21,6 @@ void main() {
         authRepository: authRepository,
         itemRepository: HttpItemRepository.fromEnvironment(
           client: client,
-          // The item adapter only sends and reports the session token.
           sessionTokens: authRepository,
         ),
         sessionNotifier: AuthSessionNotifier(repository: authRepository),
@@ -40,8 +35,6 @@ void main() {
   }
 }
 
-/// Explains a missing or invalid `API_BASE_URL` instead of failing silently
-/// during a build that forgot the public address of the API.
 class _ConfigurationErrorApp extends StatelessWidget {
   const _ConfigurationErrorApp({required this.details});
 

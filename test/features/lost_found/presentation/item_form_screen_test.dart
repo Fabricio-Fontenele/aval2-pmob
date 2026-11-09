@@ -190,7 +190,6 @@ void main() {
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
         expect(find.text('Salvando...'), findsOneWidget);
 
-        // Attempt a second tap while the first submission is still pending.
         await tester.tap(
           find.byKey(ItemFormScreen.submitButtonKey),
           warnIfMissed: false,
@@ -348,7 +347,6 @@ void main() {
         await tester.tap(find.byKey(ItemFormScreen.submitButtonKey));
         await tester.pump();
 
-        // Dispose the screen while the save operation is still pending.
         await tester.pumpWidget(const SizedBox.shrink());
         completer.complete();
         await tester.pump();

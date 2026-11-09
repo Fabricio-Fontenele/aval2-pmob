@@ -350,7 +350,6 @@ void main() {
         expect(tester.takeException(), isNull);
         expect(find.byKey(ItemListScreen.cardKey('a')), findsOneWidget);
 
-        // Dispose the screen while another read is still pending.
         final pending = Completer<List<LostFoundItem>>();
         repository.onFetchItems = () => pending.future;
         await tester.tap(find.byKey(ItemListScreen.refreshButtonKey));

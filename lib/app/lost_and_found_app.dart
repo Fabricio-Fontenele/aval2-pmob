@@ -7,8 +7,6 @@ import '../features/lost_found/domain/item_repository.dart';
 import '../features/lost_found/presentation/item_list_screen.dart';
 import 'app_theme.dart';
 
-/// Application shell: it receives the assembled dependencies and opens the
-/// public listing while the stored session is restored in the background.
 class LostAndFoundApp extends StatefulWidget {
   const LostAndFoundApp({
     super.key,
@@ -31,8 +29,6 @@ class _LostAndFoundAppState extends State<LostAndFoundApp> {
   @override
   void initState() {
     super.initState();
-    // Restoring the session is independent from the public listing, so it never
-    // delays the first frame. Its dependencies are owned by the entry point.
     widget.sessionNotifier.restoreSession();
   }
 
@@ -43,8 +39,6 @@ class _LostAndFoundAppState extends State<LostAndFoundApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      // The interface is only offered in Brazilian Portuguese, so Material
-      // widgets must use it regardless of the device language.
       locale: _brazilianPortuguese,
       supportedLocales: const [_brazilianPortuguese],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,

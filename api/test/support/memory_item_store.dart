@@ -11,7 +11,6 @@ class MemoryItemStore implements ItemStore {
   Future<List<LostFoundItem>> listItems() async {
     final err = failure;
     if (err != null) throw err;
-    // Return sorted newest first
     final copy = List<LostFoundItem>.from(items);
     copy.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return copy;

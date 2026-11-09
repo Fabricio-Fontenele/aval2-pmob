@@ -16,7 +16,6 @@ class PostgresAccountStore implements AccountStore {
   @override
   Future<String> create(
       String email, String passwordHash, PendingSession session) async {
-    // Both inserts are one statement: a failed session insert rolls back the user.
     final result = await _execute('''
 WITH new_user AS (
   INSERT INTO users (email, password_hash) VALUES (@email, @passwordHash)

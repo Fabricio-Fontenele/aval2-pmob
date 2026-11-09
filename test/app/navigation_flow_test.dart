@@ -146,7 +146,6 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  /// Lets a visible snack bar expire so no timer outlives the test.
   Future<void> settleSnackBar(WidgetTester tester) async {
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
@@ -214,7 +213,6 @@ void main() {
       await tester.tap(find.byKey(ItemListScreen.publishButtonKey));
       await tester.pumpAndSettle();
 
-      // An existing session goes straight to the form.
       expect(find.byType(LoginScreen), findsNothing);
       expect(find.byType(ItemFormScreen), findsOneWidget);
 
@@ -264,7 +262,6 @@ void main() {
       await tester.tap(find.byKey(ItemListScreen.retryButtonKey));
       await tester.pumpAndSettle();
 
-      // Only the listing was read again; the object was never republished.
       expect(itemRepository.createCallCount, 1);
       expect(itemRepository.fetchCallCount, 3);
       expect(find.byKey(ItemListScreen.cardKey('saved')), findsOneWidget);
@@ -287,7 +284,6 @@ void main() {
       expect(authRepository.logoutCallCount, 1);
       expect(find.text('Sessão encerrada.'), findsOneWidget);
       expect(find.byKey(ItemListScreen.signInButtonKey), findsOneWidget);
-      // The listing is the only route left, so there is nothing to go back to.
       expect(find.byType(BackButton), findsNothing);
 
       await settleSnackBar(tester);
@@ -318,7 +314,6 @@ void main() {
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
 
-      // The form is still mounted with the typed data, ready for a new attempt.
       expect(find.byType(ItemFormScreen), findsOneWidget);
       final nameField = tester.widget<EditableText>(
         find.descendant(

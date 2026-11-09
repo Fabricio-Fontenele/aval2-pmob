@@ -27,7 +27,6 @@ class PasswordHasher {
       if (expected == null || algorithm.type != Argon2Type.argon2id) {
         throw const FormatException('Expected an Argon2id password hash');
       }
-      // The library's digest comparison avoids early exits on differing bytes.
       return algorithm.convert(utf8.encode(password)).isEqual(expected);
     });
   }

@@ -75,7 +75,6 @@ void main() {
     expect(outcomes.whereType<String>(), hasLength(1));
     expect(outcomes.whereType<EmailInUseException>(), hasLength(1));
 
-    // Reusing a token forces a session uniqueness failure after the user insert.
     await expectLater(firstStore.create('rollback@example.test', hash, pending),
         throwsA(isA<AccountStorageException>()));
     expect(await firstStore.findByEmail('rollback@example.test'), isNull);

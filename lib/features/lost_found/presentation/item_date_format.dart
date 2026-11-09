@@ -1,8 +1,3 @@
-/// Formats the automatic creation timestamp for Brazilian Portuguese labels.
-///
-/// The value is stored in UTC and shown in the device time zone. The format is
-/// built here instead of with a localization package because the application
-/// offers a single locale and needs only this pattern.
 String formatItemDateTime(DateTime createdAt) {
   final local = createdAt.toLocal();
   final day = _twoDigits(local.day);

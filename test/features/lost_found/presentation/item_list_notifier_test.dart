@@ -174,7 +174,6 @@ void main() {
         expect(notifier.hasError, isTrue);
         expect(repository.createCallCount, 0);
 
-        // Retrying the refresh only reads again.
         repository.onFetchItems = () async => [_item('saved')];
         await notifier.refresh();
 
