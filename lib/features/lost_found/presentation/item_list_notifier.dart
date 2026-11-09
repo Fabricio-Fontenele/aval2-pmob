@@ -10,10 +10,9 @@ enum ItemListStatus { initial, loading, loaded, failed }
 /// A failed read keeps the last content that was loaded successfully, so a
 /// refresh failure never empties the list the user is already browsing.
 class ItemListNotifier extends ChangeNotifier {
-  ItemListNotifier({required ItemRepository repository})
-    : _repository = repository;
+  ItemListNotifier({required this.repository});
 
-  final ItemRepository _repository;
+  final ItemRepository repository;
 
   ItemListStatus _status = ItemListStatus.initial;
   List<LostFoundItem> _items = const [];
@@ -59,7 +58,7 @@ class ItemListNotifier extends ChangeNotifier {
     _notifySafely();
 
     try {
-      final items = await _repository.fetchItems();
+      final items = await repository.fetchItems();
       if (_isOutdated(operationEpoch)) {
         return;
       }

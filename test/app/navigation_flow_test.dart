@@ -192,7 +192,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(LoginScreen), findsOneWidget);
 
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
 
     expect(find.byType(LoginScreen), findsNothing);
@@ -315,7 +315,7 @@ void main() {
 
       expect(find.byType(LoginScreen), findsOneWidget);
 
-      await tester.pageBack();
+      await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
 
       // The form is still mounted with the typed data, ready for a new attempt.

@@ -108,10 +108,7 @@ void main() {
 
     final items = await _repository(client: client).fetchItems();
 
-    expect(
-      items.map((item) => item.id),
-      ['newest', 'middle', 'older'],
-    );
+    expect(items.map((item) => item.id), ['newest', 'middle', 'older']);
   });
 
   test('an empty listing is a successful read', () async {
@@ -123,14 +120,22 @@ void main() {
 
   final invalidPayloads = <(String, Object?)>[
     ('not a list', <String, Object?>{'items': <Object?>[]}),
-    ('missing field', [{..._itemJson()}..remove('location')]),
+    (
+      'missing field',
+      [
+        {..._itemJson()}..remove('location'),
+      ],
+    ),
     ('unknown status', [_itemJson(status: 'misplaced')]),
     ('local creation timestamp', [_itemJson(createdAt: '2026-11-07T12:00:00')]),
     ('unparseable creation timestamp', [_itemJson(createdAt: 'yesterday')]),
     ('blank identifier', [_itemJson(id: '   ')]),
-    ('numeric name', [
-      {..._itemJson(), 'name': 7},
-    ]),
+    (
+      'numeric name',
+      [
+        {..._itemJson(), 'name': 7},
+      ],
+    ),
     ('entry that is not an object', ['garrafa azul']),
   ];
 
@@ -285,14 +290,10 @@ void main() {
       ),
       throwsA(
         isA<ItemRepositoryException>()
-            .having(
-              (error) => error.fieldErrors,
-              'fieldErrors',
-              {
-                'name': 'O nome deve ter no máximo 60 caracteres.',
-                'status': 'Informe a situação do objeto.',
-              },
-            )
+            .having((error) => error.fieldErrors, 'fieldErrors', {
+              'name': 'O nome deve ter no máximo 60 caracteres.',
+              'status': 'Informe a situação do objeto.',
+            })
             .having((error) => error.isUnauthorized, 'isUnauthorized', isFalse),
       ),
     );

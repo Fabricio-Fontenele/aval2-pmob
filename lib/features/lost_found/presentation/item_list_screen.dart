@@ -156,9 +156,8 @@ class _ItemListScreenState extends State<ItemListScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -197,10 +196,8 @@ class _ItemListScreenState extends State<ItemListScreen> {
       body: SafeArea(
         child: ListenableBuilder(
           listenable: _notifier,
-          builder: (context, _) => _ItemListBody(
-            notifier: _notifier,
-            onPublish: _handlePublish,
-          ),
+          builder: (context, _) =>
+              _ItemListBody(notifier: _notifier, onPublish: _handlePublish),
         ),
       ),
     );

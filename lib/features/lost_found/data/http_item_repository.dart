@@ -17,12 +17,10 @@ import '../domain/lost_found_item.dart';
 class HttpItemRepository implements ItemRepository {
   HttpItemRepository({
     required Uri baseUrl,
-    required http.Client client,
-    required SessionTokenProvider sessionTokens,
+    required this.client,
+    required this.sessionTokens,
     Duration requestTimeout = const Duration(seconds: 75),
   }) : _baseUrl = ApiBaseUrl.normalize(baseUrl),
-       _client = client,
-       _sessionTokens = sessionTokens,
        _requestTimeout = requestTimeout {
     if (requestTimeout <= Duration.zero) {
       throw ArgumentError('requestTimeout must be positive.');
@@ -43,8 +41,8 @@ class HttpItemRepository implements ItemRepository {
   }
 
   final Uri _baseUrl;
-  final http.Client _client;
-  final SessionTokenProvider _sessionTokens;
+  final http.Client client;
+  final SessionTokenProvider sessionTokens;
   final Duration _requestTimeout;
 
   static const _itemsPath = 'items';
@@ -69,7 +67,7 @@ class HttpItemRepository implements ItemRepository {
     required String location,
     required ItemStatus status,
   }) async {
-    final token = await _sessionTokens.getSessionToken();
+    final token = await sessionTokens.getSessionToken();
     if (token == null) {
       throw const ItemRepositoryException.unauthorized();
     }
@@ -91,7 +89,7 @@ class HttpItemRepository implements ItemRepository {
     }
     if (response.statusCode == 401) {
       // The API rejected this credential; drop it so the next attempt signs in.
-      await _sessionTokens.invalidateSession(token);
+      await sessionTokens.invalidateSession(token);
       throw const ItemRepositoryException.unauthorized();
     }
     throw _failure(response);
@@ -113,12 +111,12 @@ class HttpItemRepository implements ItemRepository {
       request.headers['content-type'] = 'application/json; charset=utf-8';
       request.body = jsonEncode(body);
     }
+    Future<http.Response> send() async =>
+        http.Response.fromStream(await client.send(request));
     try {
       // A failed request is never retried here: repeating a publication
       // automatically could persist the same object twice.
-      return await http.Response.fromStream(
-        await _client.send(request),
-      ).timeout(_requestTimeout);
+      return await send().timeout(_requestTimeout);
     } on http.ClientException {
       throw const ItemRepositoryException.network();
     } on TimeoutException {
